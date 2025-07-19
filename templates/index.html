@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Моя кулинарная книга</title>
+    <link rel="stylesheet" href="./static/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-utensils"></i> Моя кулинарная книга</h1>
+    </header>
+
+    <main>
+        <section class="add-recipe">
+            <h2>Добавить новый рецепт</h2>
+            <form id="recipe-form">
+                <div class="form-group">
+                    <label for="recipe-name">Название блюда:</label>
+                    <input type="text" id="recipe-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="recipe-category">Категория:</label>
+                    <select id="recipe-category" required>
+                        <option value="">Выберите категорию</option>
+                        <option value="Завтраки">Завтраки</option>
+                        <option value="Основные блюда">Основные блюда</option>
+                        <option value="Десерты">Десерты</option>
+                        <option value="Напитки">Напитки</option>
+                        <option value="Закуски">Закуски</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="recipe-ingredients">Ингредиенты:</label>
+                    <textarea id="recipe-ingredients" rows="4" required placeholder="Каждый ингредиент с новой строки"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="recipe-instructions">Инструкция приготовления:</label>
+                    <textarea id="recipe-instructions" rows="6" required></textarea>
+                </div>
+                
+                <!--<div class="form-group">
+                    <label for="recipe-image">Изображение (URL):</label>
+                    <input type="url" id="recipe-image" placeholder="https://example.com/image.jpg">
+                </div> -->
+                
+                <button type="submit" class="btn"><i class="fas fa-plus-circle"></i> Добавить рецепт</button>
+            </form>
+        </section>
+
+        <section class="filter">
+            <h2>Мои рецепты</h2>
+            <div class="filter-controls">
+                <input type="text" id="search" placeholder="Поиск по названию...">
+                <select id="filter-category">
+                    <option value="">Все категории</option>
+                    <option value="Завтраки">Завтраки</option>
+                    <option value="Основные блюда">Основные блюда</option>
+                    <option value="Десерты">Десерты</option>
+                    <option value="Напитки">Напитки</option>
+                    <option value="Закуски">Закуски</option>
+                </select>
+            </div>
+            
+            <div id="recipes-container" class="recipes-grid"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© Список рецептов для моей любимой ❤️
+            <br> v1.1.0 </br>
+            <i> SoftByLOG </i>
+        </p>
+    </footer>
+
+    
+    <script src="./static/js/errorsHandler.js"></script>
+    <script src="./static/js/post.ver3.js"></script>
+</body>
+</html>
