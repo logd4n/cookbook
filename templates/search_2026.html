@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск рецептов</title>
+    <link rel="icon" type="image/x-icon" sizes="32x32" href="/static/favicon.ico?v=5">
+    <link rel="stylesheet" href="./static/css/search_2026.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navigation-panel">
+        <h1><i class="fas fa-book-open"></i> Моя кулинарная книга</h1>
+        <div class="nav-buttons">
+            <a href="http://192.168.0.102:8080/" class="nav-btn">
+                <i class="fas fa-plus-circle"></i>
+                Создать рецепт
+            </a>
+            <a href="http://192.168.0.102:8080/search" class="nav-btn active">
+                <i class="fas fa-search"></i>
+                Найти рецепт
+            </a>
+        </div>
+    </nav>
+
+    <main>
+        <section class="search-section">
+            <div class="search-container">
+                <div class="form-group">
+                    <label for="recipes-list">Выберите рецепт:</label>
+                    <select id="recipes-list" class="recipes-select">
+                        <option value="">Загрузка рецептов...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="recipe-form">
+                <div class="form-group">
+                    <label for="recipe-name">Название:</label>
+                    <input type="text" id="recipe-name" readonly class="readonly-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="recipe-category">Категория:</label>
+                    <select id="recipe-category" readonly class="readonly-input">
+                        <option value="">Выберите категорию</option>
+                        <option value="Завтраки">Завтраки</option>
+                        <option value="Основные блюда">Основные блюда</option>
+                        <option value="Десерты">Десерты</option>
+                        <option value="Напитки">Напитки</option>
+                        <option value="Закуски">Закуски</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Ингредиенты:</label>
+                    <ul id="recipe-ingredients" class="readonly-input"></ul>
+                    <textarea id="recipe-ingredients-edit" style="display: none;" rows="4" placeholder="Каждый ингредиент с новой строки"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="recipe-instructions">Инструкция:</label>
+                    <textarea id="recipe-instructions" rows="6" readonly class="readonly-input"></textarea>
+                </div>
+
+                <!-- КНОПКИ ДЕЙСТВИЙ -->
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-edit" id="edit-btn">
+                        <i class="fas fa-edit"></i>
+                        Редактировать
+                    </button>
+                    <button type="button" class="btn btn-delete" id="delete-btn">
+                        <i class="fas fa-trash"></i>
+                        Удалить
+                    </button>
+                </div>
+
+                <!-- КНОПКИ СОХРАНЕНИЯ (изначально скрыты) -->
+                <div class="save-buttons" id="save-buttons" style="display: none;">
+                    <button type="button" class="btn btn-save" id="save-btn">
+                        <i class="fas fa-save"></i>
+                        Сохранить
+                    </button>
+                    <button type="button" class="btn btn-cancel" id="cancel-btn">
+                        <i class="fas fa-times"></i>
+                        Отмена
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© Поиск рецептов для моей любимой 💛
+            <br> v2.4.1 </br>
+            <i> Soft By LOG</i>
+        </p>
+    </footer>
+
+    <script src="./static/js/search.js?=v9"></script>
+</body>
+</html>

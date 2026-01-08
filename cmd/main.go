@@ -1,11 +1,12 @@
 package main
 
-//version 1.1.0
+//version 2.2
 
 import (
-	"webtest/colors"
-	"webtest/intro"
-	"webtest/server"
+	"webtest/internal/database"
+	"webtest/internal/server"
+	"webtest/pkg/colors"
+	"webtest/pkg/intro"
 )
 
 func init() {
@@ -15,5 +16,10 @@ func init() {
 }
 
 func main() {
-	server.StartServer()
+	//Подключение к БД и вывод ее версии
+	dataBase, dbVersion := database.ConnectDB()
+	defer dataBase.Close()
+
+	//Запускаем сервер
+	server.StartServer(&dbVersion)
 }
