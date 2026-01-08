@@ -1,0 +1,6 @@
+templates/static/js/for_local_test.js
+data_files/*.json
+backup
+build
+logs
+docker-compose.yml
