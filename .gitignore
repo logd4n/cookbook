@@ -4,3 +4,4 @@ backup
 build
 logs
 docker-compose.yml
+.dockerignore
