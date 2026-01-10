@@ -1,6 +1,6 @@
 package main
 
-//version 2.2
+//version 2.4.1
 
 import (
 	"webtest/internal/database"
