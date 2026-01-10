@@ -4,4 +4,3 @@
 ./data_files
 ./templates/static/js/for_local_test.js
 ./docker-compose (example).yml
-./Dockerfile (example)
