@@ -1,0 +1,432 @@
+:root {
+    --primary-color: rgba(85, 125, 255, 0.9); /* Новогодний красный */
+    --secondary-color: rgba(163, 200, 255, 0.9); /* Зеленый елки */
+    --gold-color: #ffd700; /* Золотой */
+    --snow-color: #f0f8ff; /* Снежно-белый */
+    --dark-color: #1a237e; /* Темно-синий (ночное небо) */
+    --light-color: #fffaf0; /* Светлый фон с оттенком */
+    --success-color: #28a745;
+    --error-color: #e63946;
+    --warning-color: #ffc107;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    /* НОВОГОДНИЙ ФОН */
+    background: 
+        linear-gradient(rgba(197, 189, 255, 0.85),rgba(197, 189, 255, 0.85), rgba(82, 59, 255, 0.85)),
+        url('../background_2026.png') center/cover no-repeat fixed;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* Снежинки анимация (опционально) */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.8), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.8), transparent),
+        radial-gradient(3px 3px at 60px 20px, rgba(255, 255, 255, 0.9), transparent),
+        radial-gradient(2px 2px at 80px 50px, rgba(255, 255, 255, 0.8), transparent),
+        radial-gradient(3px 3px at 90px 80px, rgba(255, 255, 255, 0.9), transparent);
+    background-repeat: repeat;
+    background-size: 100px 100px;
+    z-index: -1;
+    animation: snow 20s linear infinite;
+}
+
+@keyframes snow {
+    from { transform: translateY(-100px); }
+    to { transform: translateY(100vh); }
+}
+
+h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: var(--gold-color);
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+main {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.search-section {
+    background:
+        linear-gradient(rgba(155, 195, 255, 0.85),
+        rgba(80, 135, 255, 0.902));
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(255, 215, 0, 0.2);
+    margin-bottom: 2rem;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    position: relative;
+}
+
+/* Елочные игрушки по углам */
+.search-section::before, .add-recipe::after {
+    content: '🎄';
+    position: absolute;
+    font-size: 1.5rem;
+    opacity: 0.8;
+}
+
+.search-section::before {
+    top: -15px;
+    left: -15px;
+}
+
+.search-section::after {
+    bottom: -15px;
+    right: -15px;
+}
+
+.search-container {
+    margin-bottom: 2rem;
+}
+
+.recipe-form {
+    background: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.recipes-select {
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+#recipe-ingredients {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#recipe-ingredients li {
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+footer {
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--dark-color);
+    color: white;
+    margin-top: 2rem;
+}
+
+@media (max-width: 600px) {
+    .search-section {
+        padding: 1.5rem;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+}
+
+/* Стили для навигационной панели (такие же как в styles.css) */
+.navigation-panel {
+    background: linear-gradient(180deg,
+        var(--primary-color),
+        var(--secondary-color));
+    color: white;
+    text-align: center;
+    padding: 1.5rem 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border-bottom: 3px solid var(--gold-color);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Гирлянда эффект */
+.navigation-panel::before {
+    content: '✦✦✦';
+    position: absolute;
+    top: 2px;
+    left: 0;
+    width: 100%;
+    color: var(--gold-color);
+    font-size: 1.5rem;
+    letter-spacing: 20px;
+    text-align: center;
+    animation: twinkle 2s infinite alternate;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+.nav-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 215, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.2), 
+        transparent);
+    transition: left 0.5s;
+}
+
+.nav-btn:hover::before {
+    left: 100%;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+    border-color: var(--gold-color);
+}
+
+.nav-btn.active {
+    background: var(--gold-color);
+    color: var(--dark-color);
+    border-color: var(--gold-color);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .nav-buttons {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .nav-btn {
+        width: 200px;
+        justify-content: center;
+    }
+}
+
+/* Стили для кнопок действий */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+    justify-content: center;
+}
+
+.btn-edit {
+    width: 200px;
+    height: 50px;
+    border-radius: 20px;
+    border: none;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+}
+
+.btn-edit:hover {
+    background: linear-gradient(45deg, #6bff75, #43e7c4);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.btn-delete {
+    width: 200px;
+    height: 50px;
+    border-radius: 20px;
+    border: none;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+}
+
+.btn-delete:hover {
+    background: #e82a36;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Добавьте эти стили в конец файла */
+
+/* Стили для полей в режиме чтения */
+.readonly-input {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.readonly-input:focus {
+    outline: none;
+    border-color: #e9ecef;
+}
+
+/* Стили для полей в режиме редактирования */
+.editable-input {
+    background-color: white;
+    border: 2px solid var(--primary-color);
+    color: var(--dark-color);
+    cursor: text;
+}
+
+/* Стили для списка ингредиентов в режиме редактирования */
+.ingredients-edit-mode {
+    display: none;
+}
+
+.ingredients-read-mode.editable {
+    display: none;
+}
+
+/* Кнопки сохранения */
+.save-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+    justify-content: center;
+}
+
+.btn-save {
+    background: var(--success-color, #28a745);
+    color: white;
+    width: 200px;
+    height: 50px;
+    border-radius: 20px;
+    border: none;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+}
+
+.btn-save:hover {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.btn-cancel {
+    background: var(--secondary-color, #6c757d);
+    color: white;
+    width: 200px;
+    height: 50px;
+    border-radius: 20px;
+    border: none;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* Анимация перехода */
+.form-group {
+    transition: all 0.3s ease;
+}
+
+/* Индикатор режима редактирования */
+.edit-mode .recipe-form {
+    border: 2px solid var(--primary-color);
+    background: #f8f9fa;
+}

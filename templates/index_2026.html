@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Моя кулинарная книга</title>
+    <link rel="icon" type="image/x-icon" sizes="32x32" href="/static/favicon.ico?v=5">
+    <link rel="stylesheet" href="./static/css/styles_2026.css?=2">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <!--<header> 
+        <h1><i class="fas fa-utensils"></i> Моя кулинарная книга</h1>
+    </header>-->
+
+    <!-- НАВИГАЦИОННАЯ ПАНЕЛЬ -->
+    <nav class="navigation-panel">
+        <h1><i class="fas fa-utensils"></i> Моя кулинарная книга</h1>
+        <div class="nav-buttons">
+            <a href="http://192.168.0.102:8080/" class="nav-btn active">
+                <i class="fas fa-plus-circle"></i>
+                Создать рецепт
+            </a>
+            <a href="http://192.168.0.102:8080/search" class="nav-btn">
+                <i class="fas fa-search"></i>
+                Найти рецепт
+            </a>
+        </div>
+    </nav>
+
+    <main>
+        <section class="add-recipe">
+            <h2>Добавить новый рецепт</h2>
+            <form id="recipe-form">
+                <div class="form-group">
+                    <label for="recipe-name">Название блюда:</label>
+                    <input type="text" id="recipe-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="recipe-category">Категория:</label>
+                    <select id="recipe-category" required>
+                        <option value="">Выберите категорию</option>
+                        <option value="Завтраки">Завтраки</option>
+                        <option value="Основные блюда">Основные блюда</option>
+                        <option value="Десерты">Десерты</option>
+                        <option value="Напитки">Напитки</option>
+                        <option value="Закуски">Закуски</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="recipe-ingredients">Ингредиенты:</label>
+                    <textarea id="recipe-ingredients" rows="4" required placeholder="Каждый ингредиент с новой строки"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="recipe-instructions">Инструкция приготовления:</label>
+                    <textarea id="recipe-instructions" rows="6" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn"><i class="fas fa-plus-circle"></i> Добавить рецепт</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>© Добавление рецептов для моей любимой 🩷
+            <br> v2.4.1 </br>
+            <i> Soft By LOG</i>
+        </p>
+    </footer>
+
+    <script src="./static/js/post_script.js?=2"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+#version: '3.8'
+
+services:
+
+  database: #database service name
+    image: postgres:15 #database image name and tag
+    environment:
+      POSTGRES_USER: username #database user
+      POSTGRES_PASSWORD: 1234567890 #password for database
+      POSTGRES_DB: test #database name
+    ports:
+      - "0000:0000" #ports for database operation (host:container)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data #the volume for saving data
+
+  app:
+    image: app:1.0 #application service name and tag
+    build: .
+    ports:
+      - "0000:0000" #ports for application operation (host:container)
+    environment:
+      APP_VERSION: 1.0.0 #application version
+      SERVER_ADDR: 192.168.0.2:0000 #host ip and port
+      DB_USER: username #database user
+      DB_NAME: test #database name
+      DB_PASS: 1234567890 #password for database
+      DB_HOST: database #database service name
+      DB_PORT: 0000 #port for database operation (host:container)
+      DB_SSLMODE: disable
+    depends_on:
+      - database #database service name
+    
+
+volumes:
+  postgres_data:
