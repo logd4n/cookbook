@@ -13,7 +13,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data #the volume for saving data
 
-  app:
+  app: #app service name
     image: app:1.0 #application service name and tag
     build: .
     ports:
