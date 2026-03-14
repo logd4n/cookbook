@@ -1,35 +1,35 @@
 package logger
 
 import (
+	"context"
+	"log"
 	"time"
-	rabbitconfig "webtest/internal/rabbit-config"
 
-	"github.com/rabbitmq/amqp091-go"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type RabbitMQClient struct {
-	conn    *amqp091.Connection
-	channel *amqp091.Channel
-	config  rabbitconfig.RabbitMQConfig
-}
-
-func NewRabbitMQClient(config rabbitconfig.RabbitMQConfig) (*RabbitMQClient, error) {
-	var conn *amqp091.Connection
-	var err error
-
-	conn, err = amqp091.Dial(config.URL)
+func NewMessage() error {
+	// 1.
+	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
 	if err != nil {
-		return nil, err
+		log.Printf("Не удалось подключиться к RabbitMQ (адрес:\"amqp://guest:guest@rabbitmq:5672/\") ")
+		log.Printf("Error: %v", err.Error())
+		return err
 	}
+	defer conn.Close()
 
-	channel, err := conn.Channel()
+	ch, err := conn.Channel()
 	if err != nil {
-		return nil, err
+		log.Printf("Не удалось создать канал! ")
+		log.Printf("Error: %v\n", err.Error())
+		return err
 	}
+	defer ch.Close()
 
-	err = channel.ExchangeDeclare(
-		config.Exchange,
-		"topic",
+	//2.
+	err = ch.ExchangeDeclare(
+		"logs_exchange",
+		"direct",
 		true,
 		false,
 		false,
@@ -37,44 +37,149 @@ func NewRabbitMQClient(config rabbitconfig.RabbitMQConfig) (*RabbitMQClient, err
 		nil,
 	)
 	if err != nil {
-		return nil, err
+		log.Printf("Не удалось объявить exchange! ")
+		log.Printf("Error: %v\n", err.Error())
+		return err
 	}
 
-	err = channel.QueueBind(
-		config.Queue,
-		"#",
-		config.Exchange,
+	//3.
+	queue, err := ch.QueueDeclare(
+		"test_queue",
+		true,
+		false,
+		false,
 		false,
 		nil,
 	)
 	if err != nil {
-		return nil, err
+		log.Printf("Не удалось объявить queue! ")
+		log.Printf("Error: %v\n", err.Error())
+		return err
 	}
 
-	return &RabbitMQClient{
-		conn:    conn,
-		channel: channel,
-		config:  config,
-	}, nil
-}
+	//4.
+	err = ch.QueueBind(
+		queue.Name,
+		"test_key",
+		"logs_exchange",
+		false,
+		nil,
+	)
+	if err != nil {
+		log.Printf("Не удалось связать exchange и queue! ")
+		log.Printf("Error: %v\n", err.Error())
+		return err
+	}
 
-func (r *RabbitMQClient) PublishLog(message string) error {
-	routingKey := "logs.test"
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	return r.channel.Publish(
-		r.config.Exchange,
-		routingKey,
+	//5.
+	body := "Hello RabbitMQ!"
+	err = ch.PublishWithContext(ctx, "logs_exchange",
+		"test_key",
 		false,
 		false,
-		amqp091.Publishing{
-			ContentType: "application/json",
-			Body:        []byte(message),
-			Timestamp:   time.Now(),
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(body),
 		},
 	)
+	if err != nil {
+		log.Printf("Не удалось опубликовать сообщение! ")
+		log.Printf("Error: %v\n", err.Error())
+		return err
+	}
+
+	return nil
 }
 
-func (r *RabbitMQClient) Close() {
-	r.channel.Close()
-	r.conn.Close()
+func ReadMessage() error {
+	//1.
+	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
+	if err != nil {
+		log.Printf("Не удалось подключиться к RabbitMQ (адрес:\"amqp://guest:guest@rabbitmq:5672/\") ")
+		log.Printf("Error: %v", err.Error())
+		return err
+	}
+	defer conn.Close()
+
+	ch, err := conn.Channel()
+	if err != nil {
+		log.Printf("Не удалось создать канал! ")
+		log.Printf("Error: %v\n", err.Error())
+		return err
+	}
+	defer ch.Close()
+
+	//2.
+	err = ch.ExchangeDeclare(
+		"logs_exchange",
+		"direct",
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		log.Printf("Не удалось объявить exchange! ")
+		log.Printf("Error: %v\n", err.Error())
+		return err
+	}
+
+	//3.
+	queue, err := ch.QueueDeclare(
+		"test_queue",
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		log.Printf("Не удалось объявить queue! ")
+		log.Printf("Error: %v\n", err.Error())
+		return err
+	}
+
+	//4.
+	err = ch.QueueBind(
+		queue.Name,
+		"test_key",
+		"logs_exchange",
+		false,
+		nil,
+	)
+	if err != nil {
+		log.Printf("Не удалось связать exchange и queue! ")
+		log.Printf("Error: %v\n", err.Error())
+		return err
+	}
+
+	//5.
+	msgs, err := ch.Consume(
+		queue.Name,
+		"",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		log.Printf("Не удалось прочитать сообщение из очереди! ")
+		log.Printf("Error: %v\n", err.Error())
+		return err
+	}
+
+	go func() {
+		for m := range msgs {
+			log.Printf("MESSAGE: %s\n", m.Body)
+			m.Ack(false)
+		}
+	}()
+
+	time.Sleep(1 * time.Second)
+	return nil
 }
