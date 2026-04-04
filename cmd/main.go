@@ -31,13 +31,15 @@ func main() {
 	}
 	log.Printf("---Сообщение отправлено---\n")
 
-	time.Sleep(500 * time.Millisecond)
-	err = logger.ReadMessage()
-	if err != nil {
-		return
-	}
-	log.Printf("---Сообщение прочтено---\n\n")
-	///////////////////////// <--- RabbitMQ TEST END
+	/*
+		time.Sleep(500 * time.Millisecond)
+		err = logger.ReadMessage()
+		if err != nil {
+			return
+		}
+		log.Printf("---Сообщение прочтено---\n\n")
+		///////////////////////// <--- RabbitMQ TEST END
+	*/
 
 	//Запускаем сервер
 	log.Printf("Сервер запущен!")
