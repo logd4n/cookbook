@@ -14,7 +14,7 @@ import (
 
 // Обработчик для localhost:8080/
 func mainHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, rootDir+"/templates/index_2026.html")
+	http.ServeFile(w, r, rootDir+"/templates/index.html")
 
 	//Получение IP-адреса клиента и вывод подлючения в консоль
 	client, err := getClientIP(r)
@@ -81,7 +81,7 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 
 // Обработчик для localhost:8080/search
 func searchHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, rootDir+"/templates/search_2026.html")
+	http.ServeFile(w, r, rootDir+"/templates/search.html")
 
 	client, _ := getClientIP(r) //Получаем ip клиента
 	colors.SetColor(colors.Text_Purple)
