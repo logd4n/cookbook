@@ -4,7 +4,6 @@ package main
 
 import (
 	"log"
-	"time"
 	"webtest/internal/database"
 	"webtest/internal/logger"
 	"webtest/internal/server"
@@ -20,26 +19,22 @@ func init() {
 
 func main() {
 	//Подключение к БД и вывод ее версии
-	dataBase, dbVersion := database.ConnectDB()
+	dataBase, dbVersion, err := database.ConnectDB()
+	if err != nil {
+		return
+	}
 	defer dataBase.Close()
 
-	///////////////////////// <--- RabbitMQ TEST BEGIN
-	time.Sleep(3 * time.Second) //Ждем RabbitMQ
-	err := logger.NewMessage()
+	//Пытаемся подключиться к RabbitMQ
+	err = logger.ConnectionAttempt()
+	if err != nil {
+		return
+	}
+	err = logger.NewMessage()
 	if err != nil {
 		return
 	}
 	log.Printf("---Сообщение отправлено---\n")
-
-	/*
-		time.Sleep(500 * time.Millisecond)
-		err = logger.ReadMessage()
-		if err != nil {
-			return
-		}
-		log.Printf("---Сообщение прочтено---\n\n")
-		///////////////////////// <--- RabbitMQ TEST END
-	*/
 
 	//Запускаем сервер
 	log.Printf("Сервер запущен!")

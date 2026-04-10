@@ -8,6 +8,32 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+func ConnectionAttempt() error {
+	var conn *amqp.Connection
+	var err error
+
+	for i := 1; i <= 10; i++ {
+		log.Printf("Попытка подключения к RabbitMQ №%d...\t\n", i)
+
+		conn, err = amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
+
+		if err == nil {
+			conn.Close()
+			break
+		}
+
+		log.Printf("Ошибка подключения: \"%v\"\n", err.Error())
+		time.Sleep(5 * time.Second)
+	}
+
+	if err != nil {
+		log.Printf("Превышено время ожидания RabbitMQ!\nОшибка: %v\n", err.Error())
+		return err
+	}
+
+	return nil
+}
+
 func NewMessage() error {
 	// 1.
 	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")

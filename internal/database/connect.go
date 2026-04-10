@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 	"webtest/internal/models"
 	"webtest/pkg/colors"
 
@@ -18,7 +19,35 @@ var (
 	driverName string
 )
 
-func ConnectDB() (*sql.DB, string) {
+func ConnectionAttempt(dsn string) error {
+	var db *sql.DB
+	var err error
+
+	for i := 1; i <= 5; i++ {
+		log.Printf("Попытка подключения к PostgreSQL №%d...\t", i)
+
+		db, err = sql.Open(driverName, dsn)
+
+		if err == nil {
+			break
+		}
+
+		log.Printf("Ошибка подключения: \"%v\"\n", err.Error())
+		time.Sleep(2 * time.Second)
+	}
+
+	if err != nil {
+		colors.SetColor(colors.Text_Red)
+		log.Printf("Ошибка подключения к БД: %v", err.Error())
+		colors.ResetColor()
+		return err
+	}
+
+	dataBase = db
+	return nil
+}
+
+func ConnectDB() (*sql.DB, string, error) {
 	//Получение значений из переменных окружения ОС
 	dsn := fmt.Sprintf("user=%s dbname=%s password=%s host=%s port=%s sslmode=%s",
 		os.Getenv("DB_USER"),
@@ -31,16 +60,21 @@ func ConnectDB() (*sql.DB, string) {
 	driverName = "postgres"
 
 	//Подключение к БД
-	db, err := sql.Open(driverName, dsn)
+	err := ConnectionAttempt(dsn)
+	if err != nil {
+		return nil, "", err
+	}
+
+	/*db, err := sql.Open(driverName, dsn)
 	if err != nil {
 		colors.SetColor(colors.Text_Red)
 		log.Fatal("Ошибка подключения к БД: ", err)
 		colors.ResetColor()
 	}
-	dataBase = db
+	dataBase = db*/
 
 	//Получение версии БД
-	rows, err := db.Query(`
+	rows, err := dataBase.Query(`
 		select version()
 		`)
 	if err != nil {
@@ -73,7 +107,7 @@ func ConnectDB() (*sql.DB, string) {
 
 	colors.ResetColor()
 
-	return db, version
+	return dataBase, version, nil
 }
 
 func createTables() error {
