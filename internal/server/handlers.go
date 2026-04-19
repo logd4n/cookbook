@@ -100,7 +100,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Обработчик для localhost:8080/recipes
+// Обработчик для localhost:8080/api/recipes
 func getAllRecipesHandler(w http.ResponseWriter, r *http.Request) {
 	// Разрешаем CORS
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -138,7 +138,7 @@ func getAllRecipesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Обработчик для localhost:8080/recipes/
+// Обработчик для localhost:8080/api/recipes/
 func getOneRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	// Разрешаем CORS
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -188,7 +188,7 @@ func getOneRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(recipe)
 }
 
-// Обработчик для localhost:8080/deleteRecipe/
+// Обработчик для localhost:8080/api/deleteRecipe/
 func deleteRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	// Разрешаем CORS
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -243,7 +243,7 @@ func deleteRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Удаление выполнено успешно!"))
 }
 
-// Обработчик для localhost:8080/updateRecipe/
+// Обработчик для localhost:8080/api/updateRecipe/
 func updateRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	// Разрешаем CORS
 	w.Header().Set("Access-Control-Allow-Origin", "*")
