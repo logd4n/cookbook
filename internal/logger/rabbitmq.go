@@ -31,6 +31,7 @@ func ConnectionAttempt() error {
 		return err
 	}
 
+	log.Printf("Подключение к RabbitMQ выполнено успешно!")
 	return nil
 }
 
