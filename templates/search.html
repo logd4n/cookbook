@@ -13,13 +13,21 @@
     <nav class="navigation-panel">
         <h1><i class="fas fa-book-open"></i> Моя кулинарная книга</h1>
         <div class="nav-buttons">
-            <a href="http://192.168.0.102:8080/" class="nav-btn">
+            <a href="#" id="mainPage" class="nav-btn">
                 <i class="fas fa-plus-circle"></i>
                 Создать рецепт
+                <script>
+                // window.location.hostname сам определит IP или домен, по которому открыт сайт
+                const host = window.location.hostname; 
+                document.getElementById('mainPage').href = `http://${host}:8080/`;
+                </script>
             </a>
-            <a href="http://192.168.0.102:8080/search" class="nav-btn active">
+            <a href="#" id="searchPage" class="nav-btn active">
                 <i class="fas fa-search"></i>
                 Найти рецепт
+                <script>
+                document.getElementById('searchPage').href = `http://${host}:8080/search`;
+                </script>
             </a>
         </div>
     </nav>
@@ -93,11 +101,11 @@
 
     <footer>
         <p>© Поиск рецептов для моей любимой 💛
-            <br> v2.4.0 </br>
+            <br> v2.4.1 </br>
             <i> Soft By LOG</i>
         </p>
     </footer>
 
-    <script src="./static/js/search.js?=v9"></script>
+    <script src="./static/js/search.js?=v11"></script>
 </body>
 </html>

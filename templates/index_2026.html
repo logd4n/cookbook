@@ -11,21 +11,25 @@
 </head>
 
 <body>
-    <!--<header> 
-        <h1><i class="fas fa-utensils"></i> Моя кулинарная книга</h1>
-    </header>-->
-
     <!-- НАВИГАЦИОННАЯ ПАНЕЛЬ -->
     <nav class="navigation-panel">
         <h1><i class="fas fa-utensils"></i> Моя кулинарная книга</h1>
         <div class="nav-buttons">
-            <a href="http://192.168.0.102:8080/" class="nav-btn active">
+            <a href="#" id="mainPage" class="nav-btn active">
                 <i class="fas fa-plus-circle"></i>
                 Создать рецепт
+                <script>
+                // window.location.hostname сам определит IP или домен, по которому открыт сайт
+                const host = window.location.hostname; 
+                document.getElementById('mainPage').href = `http://${host}:8080/`;
+                </script>
             </a>
-            <a href="http://192.168.0.102:8080/search" class="nav-btn">
+            <a href="#" id="searchPage" class="nav-btn">
                 <i class="fas fa-search"></i>
                 Найти рецепт
+                <script>
+                document.getElementById('searchPage').href = `http://${host}:8080/search`;
+                </script>
             </a>
         </div>
     </nav>
