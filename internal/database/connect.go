@@ -38,12 +38,13 @@ func ConnectionAttempt(dsn string) error {
 
 	if err != nil {
 		colors.SetColor(colors.Text_Red)
-		log.Printf("Ошибка подключения к БД: %v", err.Error())
+		log.Printf("Ошибка подключения к БД: \"%v\"", err.Error())
 		colors.ResetColor()
 		return err
 	}
 
 	dataBase = db
+	log.Printf("Подключение к БД выполнено успешно!")
 	return nil
 }
 
@@ -64,14 +65,6 @@ func ConnectDB() (*sql.DB, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-
-	/*db, err := sql.Open(driverName, dsn)
-	if err != nil {
-		colors.SetColor(colors.Text_Red)
-		log.Fatal("Ошибка подключения к БД: ", err)
-		colors.ResetColor()
-	}
-	dataBase = db*/
 
 	//Получение версии БД
 	rows, err := dataBase.Query(`
@@ -111,6 +104,7 @@ func ConnectDB() (*sql.DB, string, error) {
 }
 
 func createTables() error {
+	//Таблица recipes
 	_, err := dataBase.Query(`
 	create table if not exists recipes (
 	id serial primary key,
@@ -120,6 +114,16 @@ func createTables() error {
 	instructions text
 	)
 	`)
+
+	//Таблица logs
+	/*_, err = dataBase.Query(`
+	create table if not exists recipes (
+	id bigserial primary key,
+	level varchar(10) not null,
+	message text,
+	created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+	)
+	`)*/
 
 	return err
 }
@@ -157,28 +161,6 @@ func WriteDB(eat_data *models.Eat) error {
 	$3,
 	$4)
 	`, eat_data.Name, eat_data.Category, pq.Array(eat_data.Ingredients), eat_data.Instructions)
-
-	/*
-		rows, err := dataBase.Query(`
-		select *
-		from recipes
-		where name = $1
-		`)
-		if err != nil {
-			colors.SetColor(colors.Text_Red)
-			log.Fatal("Не удалось выполнить запрос!", err)
-			colors.ResetColor()
-		}
-
-		var scanName string
-		for rows.Next() {
-			err = rows.Scan(&scanName)
-			if err != nil {
-				colors.SetColor(colors.Text_Red)
-				log.Fatal("Ошибка чтения результата!", err)
-				colors.ResetColor()
-			}
-		}*/
 
 	return nil
 }
