@@ -37,6 +37,5 @@ func main() {
 	log.Printf("---Сообщение отправлено---\n")
 
 	//Запускаем сервер
-	log.Printf("Сервер запущен!")
 	server.StartServer(&dbVersion)
 }
