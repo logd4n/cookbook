@@ -1,6 +1,8 @@
 document.getElementById('recipe-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     
+    const host = window.location.hostname
+
     // Собираем данные формы
     const formData = {
         name: document.getElementById('recipe-name').value,
@@ -19,7 +21,7 @@ document.getElementById('recipe-form').addEventListener('submit', async function
     
     try {
         // Отправляем POST-запрос
-        const response = await fetch('http://192.168.0.102:8080/add', {
+        const response = await fetch(`http://${host}:8080/add`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

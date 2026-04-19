@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const editBtn = document.getElementById('edit-btn');
     const saveBtn = document.getElementById('save-btn');
     const cancelBtn = document.getElementById('cancel-btn');
+    const host = window.location.hostname
     
     // Переменные для управления состоянием
     let currentRecipeId = null;
@@ -74,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             console.log(`🗑️ Пытаемся удалить рецепт с ID: ${recipeId}`);
             
-            const response = await fetch(`http://192.168.0.102:8080/api/deleteRecipe/${recipeId}`, {
+            const response = await fetch(`http://${host}:8080/api/deleteRecipe/${recipeId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -250,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
         saveBtn.disabled = true;
 
         // Отправляем PUT запрос на сервер
-        const response = await fetch(`http://192.168.0.102:8080/api/updateRecipe/${currentRecipeId}`, {
+        const response = await fetch(`http://${host}:8080/api/updateRecipe/${currentRecipeId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -294,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
         console.log('🔄 Загружаем список рецептов...');
         
-        const response = await fetch('http://192.168.0.102:8080/api/recipes');
+        const response = await fetch(`http://${host}:8080/api/recipes`);
         
         if (!response.ok) {
             throw new Error('Ошибка загрузки списка рецептов: ' + response.status);
@@ -319,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Показываем что идет загрузка
             recipesList.disabled = true;
             
-            const response = await fetch(`http://192.168.0.102:8080/api/recipes/${recipeId}`);
+            const response = await fetch(`http://${host}:8080/api/recipes/${recipeId}`);
             
             if (!response.ok) {
                 throw new Error('Ошибка загрузки рецепта: ' + response.status);
