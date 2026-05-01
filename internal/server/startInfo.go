@@ -20,7 +20,7 @@ func GetStartInfo(dbVersion *string) {
 	//Вывод пути к файлу с логами
 	fmt.Printf("Path to logs:\t%s", logfilePath)
 	colors.SetColor(colors.Text_Red)
-	fmt.Printf("DOESN'T WORK YET :(\n") //ПОКА ЧТО НЕ РАБОТАЕТ
+	fmt.Printf("\tDOESN'T WORK YET :(\n") //ПОКА ЧТО НЕ РАБОТАЕТ
 	colors.SetColor(colors.Text_Yellow)
 	//Вывод версии БД
 	fmt.Printf("Database version:\t%s\n", *dbVersion)
