@@ -115,16 +115,6 @@ func createTables() error {
 	)
 	`)
 
-	//Таблица logs
-	/*_, err = dataBase.Query(`
-	create table if not exists recipes (
-	id bigserial primary key,
-	level varchar(10) not null,
-	message text,
-	created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-	)
-	`)*/
-
 	return err
 }
 
