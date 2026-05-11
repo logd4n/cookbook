@@ -3,9 +3,9 @@ package main
 //version 2.4.1
 
 import (
-	"log"
 	"webtest/internal/database"
 	"webtest/internal/logger"
+	"webtest/internal/models"
 	"webtest/internal/server"
 	"webtest/pkg/colors"
 	"webtest/pkg/intro"
@@ -30,11 +30,13 @@ func main() {
 	if err != nil {
 		return
 	}
-	err = logger.NewMessage()
+	err = logger.NewMessage(models.LogMessage{
+		Level:   models.Info,
+		Message: "Сервер запущен!",
+	})
 	if err != nil {
 		return
 	}
-	log.Printf("---Сообщение отправлено---\n")
 
 	//Запускаем сервер
 	server.StartServer(&dbVersion)
