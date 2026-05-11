@@ -12,3 +12,19 @@ type RecipeShort struct {
 	Id   int    `json:"id"`
 	Name string `json:"name"`
 }
+
+type LogLevel string
+
+const (
+	Error LogLevel = "error"
+	Info  LogLevel = "info"
+	Panic LogLevel = "panic"
+	Warn  LogLevel = "warning"
+	Fatal LogLevel = "fatal"
+	Debug LogLevel = "debug"
+)
+
+type LogMessage struct {
+	Level   LogLevel `json:"level"`
+	Message string   `json:"message"`
+}
