@@ -4,4 +4,5 @@
 ./data_files
 ./templates/static/js/for_local_test.js
 ./docker-compose (example).yml
-./readme-example.md
+./readme-example.md2. Изменить путь сборки логгера
+./что сделать.txt
