@@ -2,8 +2,11 @@ package logger
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"log"
 	"time"
+	"webtest/internal/models"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -35,7 +38,7 @@ func ConnectionAttempt() error {
 	return nil
 }
 
-func NewMessage() error {
+func NewMessage(message models.LogMessage) error {
 	// 1.
 	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
 	if err != nil {
@@ -47,8 +50,7 @@ func NewMessage() error {
 
 	ch, err := conn.Channel()
 	if err != nil {
-		log.Printf("Не удалось создать канал! ")
-		log.Printf("Error: %v\n", err.Error())
+		log.Printf("Не удалось создать канал! Error: %v\n", err.Error())
 		return err
 	}
 	defer ch.Close()
@@ -56,7 +58,7 @@ func NewMessage() error {
 	//2.
 	err = ch.ExchangeDeclare(
 		"logs_exchange",
-		"direct",
+		"topic",
 		true,
 		false,
 		false,
@@ -64,14 +66,13 @@ func NewMessage() error {
 		nil,
 	)
 	if err != nil {
-		log.Printf("Не удалось объявить exchange! ")
-		log.Printf("Error: %v\n", err.Error())
+		log.Printf("Не удалось объявить exchange! Error: %v\n", err.Error())
 		return err
 	}
 
 	//3.
 	queue, err := ch.QueueDeclare(
-		"test_queue",
+		"q.database.saver",
 		true,
 		false,
 		false,
@@ -79,22 +80,20 @@ func NewMessage() error {
 		nil,
 	)
 	if err != nil {
-		log.Printf("Не удалось объявить queue! ")
-		log.Printf("Error: %v\n", err.Error())
+		log.Printf("Не удалось объявить queue! Error: %v\n", err.Error())
 		return err
 	}
 
 	//4.
 	err = ch.QueueBind(
 		queue.Name,
-		"test_key",
+		"logs.#",
 		"logs_exchange",
 		false,
 		nil,
 	)
 	if err != nil {
-		log.Printf("Не удалось связать exchange и queue! ")
-		log.Printf("Error: %v\n", err.Error())
+		log.Printf("Не удалось связать exchange и queue! Error: %v\n", err.Error())
 		return err
 	}
 
@@ -102,19 +101,23 @@ func NewMessage() error {
 	defer cancel()
 
 	//5.
-	body := "Hello RabbitMQ!"
+	body, err := json.Marshal(message)
+	if err != nil {
+		return errors.New("Ошибка перевода структуры в byte[]: " + err.Error())
+	}
+
 	err = ch.PublishWithContext(ctx, "logs_exchange",
-		"test_key",
+		"logs."+string(message.Level),
 		false,
 		false,
 		amqp.Publishing{
-			ContentType: "text/plain",
+			ContentType: "application/json",
 			Body:        []byte(body),
+			Timestamp:   time.Now().UTC(),
 		},
 	)
 	if err != nil {
-		log.Printf("Не удалось опубликовать сообщение! ")
-		log.Printf("Error: %v\n", err.Error())
+		log.Printf("Не удалось опубликовать сообщение! Error: %v\n", err.Error())
 		return err
 	}
 
