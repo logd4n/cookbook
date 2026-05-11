@@ -43,7 +43,7 @@ services:
     ports:
       - "8080:8080" #ports for application operation (host:container)
     environment:
-      APP_VERSION: 2.4.2 #application version
+      APP_VERSION: 2.5.0 #application version
       SERVER_ADDR: ${HOST_IP} #host ip
       DB_USER: postgres #database user
       DB_NAME: cookbook #database name
@@ -56,7 +56,21 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-    
+
+logger:
+    build: ../logger
+    environment:
+      SERVER_ADDR: ${HOST_IP} #host ip
+      DB_USER: postgres #database user
+      DB_NAME: cookbook #database name
+      DB_PASS: 1234567890 #password for database
+      DB_HOST: database #database service name
+      DB_PORT: 5432 #port for database operation (host:container)
+      DB_SSLMODE: disable
+    depends_on:
+      - rabbitmq
+      - postgres-db
+      - app    
 
 volumes:
   postgres_data:
