@@ -2,11 +2,13 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"webtest/internal/database"
+	"webtest/internal/logger"
 	"webtest/internal/models"
 	. "webtest/internal/writeData"
 	"webtest/pkg/colors"
@@ -21,11 +23,20 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		colors.SetColor(colors.Text_Red)
 		log.Println("Не удалось получить IP-адрес клиента...")
+		logger.NewMessage(models.LogMessage{
+			Level:   models.Error,
+			Message: "Не удалось получить IP-адрес клиента...",
+		})
 		colors.ResetColor()
 	}
 	colors.SetColor(colors.Text_Purple)
 	log.Printf("Выполнено подключение к \"%s\"! Client ip: [%s]\n\n", serverAddr+"/", client)
 	colors.ResetColor()
+	logger.NewMessage(models.LogMessage{
+		Level: models.Info,
+		Message: fmt.Sprintf("Выполнено подключение к \"%s\"! Client ip: [%s]",
+			serverAddr+"/", client),
+	})
 }
 
 // Обработчик для localhost:8080/add
@@ -73,6 +84,10 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 	client, _ := getClientIP(r) //Получение IP-адреса клиента
 	colors.SetColor(colors.Text_Purple)
 	log.Printf("Клиент [%s] записал данные на сервер!\n\n", client)
+	logger.NewMessage(models.LogMessage{
+		Level:   models.Info,
+		Message: fmt.Sprintf("Клиент [%s] записал данные на сервер!\n\n", client),
+	})
 	colors.ResetColor()
 
 	//Возвращаем статус OK
@@ -86,6 +101,10 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	client, _ := getClientIP(r) //Получаем ip клиента
 	colors.SetColor(colors.Text_Purple)
 	log.Printf("Выполнено подключение к \"%s\"! Client ip: [%s]\n\n", serverAddr+"/search", client)
+	logger.NewMessage(models.LogMessage{
+		Level:   models.Info,
+		Message: fmt.Sprintf("Выполнено подключение к \"%s\"! Client ip: [%s]", serverAddr+"/search", client),
+	})
 	colors.ResetColor()
 
 	// Разрешаем CORS
@@ -236,6 +255,10 @@ func deleteRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	client, _ := getClientIP(r) //Получение ip клиента
 	colors.SetColor(colors.Text_Purple)
 	log.Printf("Клиент [%s] удалил данные по id [%d] на сервере!\n\n", client, recipeID)
+	logger.NewMessage(models.LogMessage{
+		Level:   models.Info,
+		Message: fmt.Sprintf("Клиент [%s] удалил данные по id [%d] на сервере!", client, recipeID),
+	})
 	colors.ResetColor()
 
 	//Возвращаем статус 200 ОК и сообщение
@@ -271,6 +294,7 @@ func updateRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	data, err := Deserialization(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	//Отправляем запрос в БД
@@ -283,6 +307,10 @@ func updateRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	client, _ := getClientIP(r) //Получаем ip клиента
 	colors.SetColor(colors.Text_Purple)
 	log.Printf("Клиент [%s] обновил данные по id [%d] на сервере!\n\n", client, data.ID)
+	logger.NewMessage(models.LogMessage{
+		Level:   models.Info,
+		Message: fmt.Sprintf("Клиент [%s] обновил данные по id [%d] на сервере!\n\n", client, data.ID),
+	})
 	colors.ResetColor()
 
 	//Возвращаем статус 200 ОК и сообщение
