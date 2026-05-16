@@ -3,6 +3,7 @@ package main
 //version 2.4.1
 
 import (
+	"log"
 	"webtest/internal/database"
 	"webtest/internal/logger"
 	"webtest/internal/models"
@@ -21,6 +22,7 @@ func main() {
 	//Подключение к БД и вывод ее версии
 	dataBase, dbVersion, err := database.ConnectDB()
 	if err != nil {
+		log.Fatalf(err.Error())
 		return
 	}
 	defer dataBase.Close()
@@ -28,13 +30,13 @@ func main() {
 	//Пытаемся подключиться к RabbitMQ
 	err = logger.ConnectionAttempt()
 	if err != nil {
+		log.Fatalf(err.Error())
 		return
 	}
-	err = logger.NewMessage(models.LogMessage{
-		Level:   models.Info,
-		Message: "Сервер запущен!",
-	})
+	//Выводим стартовое сообщение
+	err = logger.LogPrint("Сервер запущен!", models.Info)
 	if err != nil {
+		log.Fatalf(err.Error())
 		return
 	}
 

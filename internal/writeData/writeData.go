@@ -5,10 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
+	"webtest/internal/logger"
 	"webtest/internal/models"
 	"webtest/pkg/colors"
+)
+
+var (
+	ErrorDeserialization = errors.New("Ошибка десериализации")
+	ErrorReadBody        = errors.New("Ошибка чтения тела запроса!")
 )
 
 func Deserialization(r *http.Request) (*models.Eat, error) {
@@ -17,23 +22,23 @@ func Deserialization(r *http.Request) (*models.Eat, error) {
 	//Читаем тело запроса
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		return nil, errors.New("Ошибка чтения тела запроса!")
+		return nil, ErrorReadBody
 	}
 	colors.SetColor(colors.Text_Green)
-	log.Println("Чтение тела запроса прошло успешно!")
+	logger.LogPrint("Чтение тела запроса прошло успешно!", models.Info)
 	colors.ResetColor()
 
 	//Процесс десериализации
 	err = json.Unmarshal(body, &eat_data)
 	if err != nil {
-		return nil, errors.New("Ошибка десериализации!")
+		return nil, ErrorDeserialization
 	}
 	colors.SetColor(colors.Text_Green)
-	log.Println("Десериализация прошла успешно!")
+	logger.LogPrint("Десериализация прошла успешно!", models.Info)
 	colors.ResetColor()
 
 	colors.SetColor(colors.Text_Green)
-	fmt.Println("\nResult: \n", eat_data)
+	logger.LogPrint(fmt.Sprintf("Result: %v", eat_data), models.Info)
 	colors.ResetColor()
 
 	return &eat_data, nil

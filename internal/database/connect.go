@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"time"
+	"webtest/internal/logger"
 	"webtest/internal/models"
 	"webtest/pkg/colors"
 
@@ -19,6 +20,20 @@ var (
 	driverName string
 )
 
+// Errors
+var (
+	ConnectionErr   = errors.New("Ошибка подключения к БД!")
+	GetVersionErr   = errors.New("Не удалось получить версию БД!")
+	CreateTableErr  = errors.New("Ошибка создания таблицы!")
+	RecipeExistsErr = errors.New("Рецепт с таким названием уже существует!")
+	GetDataErr      = errors.New("Не удалось получить результат!")
+	ReadDataErr     = errors.New("Ошибка чтения результата!")
+	DeleteDataErr   = errors.New("Не удалось выполнить удаление!")
+	UpdateDataErr   = errors.New("Не удалось выполнить обновление!")
+	ProcessingErr   = errors.New("Ошибка в обработке результатов!")
+)
+
+// Несколько попыток подключения к БД
 func ConnectionAttempt(dsn string) error {
 	var db *sql.DB
 	var err error
@@ -37,17 +52,15 @@ func ConnectionAttempt(dsn string) error {
 	}
 
 	if err != nil {
-		colors.SetColor(colors.Text_Red)
-		log.Printf("Ошибка подключения к БД: \"%v\"", err.Error())
-		colors.ResetColor()
-		return err
+		return ConnectionErr
 	}
 
 	dataBase = db
-	log.Printf("Подключение к БД выполнено успешно!")
+	logger.LogPrint("Подключение к БД выполнено успешно!", models.Info)
 	return nil
 }
 
+// Подключение к БД
 func ConnectDB() (*sql.DB, string, error) {
 	//Получение значений из переменных окружения ОС
 	dsn := fmt.Sprintf("user=%s dbname=%s password=%s host=%s port=%s sslmode=%s",
@@ -71,9 +84,7 @@ func ConnectDB() (*sql.DB, string, error) {
 		select version()
 		`)
 	if err != nil {
-		colors.SetColor(colors.Text_Red)
-		log.Fatal("Не удалось получить версию БД!", err)
-		colors.ResetColor()
+		return nil, "", GetVersionErr
 	}
 
 	var version string
@@ -81,28 +92,32 @@ func ConnectDB() (*sql.DB, string, error) {
 		err = rows.Scan(&version)
 		if err != nil {
 			colors.SetColor(colors.Text_Red)
-			log.Fatal("Ошибка чтения результата! (DB version)", err)
+			logger.LogPrint(
+				fmt.Sprintf("Не удалось получить результат запроса: %v", err.Error()),
+				models.Error,
+			)
 			colors.ResetColor()
 		}
 	}
 	if err = rows.Err(); err != nil {
 		colors.SetColor(colors.Text_Red)
-		log.Fatal("Ошибка при обработке результатов! (DB version)", err)
+		logger.LogPrint(
+			fmt.Sprintf("Ошибка при обработке результатов: %v", err.Error()),
+			models.Error,
+		)
 		colors.ResetColor()
 	}
 
 	// Создаем таблицу recipes
 	err = createTables()
 	if err != nil {
-		colors.SetColor(colors.Text_Red)
-		log.Fatal(err.Error())
+		return nil, "", CreateTableErr
 	}
-
-	colors.ResetColor()
 
 	return dataBase, version, nil
 }
 
+// Создание таблицы
 func createTables() error {
 	//Таблица recipes
 	_, err := dataBase.Query(`
@@ -118,6 +133,7 @@ func createTables() error {
 	return err
 }
 
+// Запись данных
 func WriteDB(eat_data *models.Eat) error {
 	//Проверка на наличие повторных данных
 	var exists bool = false
@@ -128,13 +144,11 @@ func WriteDB(eat_data *models.Eat) error {
 	`, eat_data.Name).Scan(&exists)
 
 	if err != nil {
-		colors.SetColor(colors.Text_Red)
-		fmt.Println("Не удалось проверить наличие повторных данных")
-		colors.ResetColor()
+		return GetDataErr
 	}
 
 	if exists {
-		return errors.New("Рецепт с таким названием уже существует!")
+		return RecipeExistsErr
 	}
 
 	//Запись данных в БД
@@ -155,6 +169,7 @@ func WriteDB(eat_data *models.Eat) error {
 	return nil
 }
 
+// Получение всех рецептов
 func GetAllRecipes() ([]models.RecipeShort, error) {
 	var data []models.RecipeShort
 
@@ -162,7 +177,7 @@ func GetAllRecipes() ([]models.RecipeShort, error) {
 	select id, name from recipes
 	`)
 	if err != nil {
-		return nil, errors.New("Не удалось получить данные!")
+		return nil, GetDataErr
 	}
 
 	for rows.Next() {
@@ -172,18 +187,19 @@ func GetAllRecipes() ([]models.RecipeShort, error) {
 			&recipe.Name,
 		)
 		if err != nil {
-			return nil, errors.New("Ошибка чтения результата!")
+			return nil, ReadDataErr
 		}
 		data = append(data, recipe)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, errors.New("Ошибка в обработке результатов!")
+		return nil, ProcessingErr
 	}
 
 	return data, nil
 }
 
+// Получение одного рецепта
 func GetOneRecipe(id int) (models.Eat, error) {
 	var data models.Eat
 	err := dataBase.QueryRow(`
@@ -197,7 +213,7 @@ func GetOneRecipe(id int) (models.Eat, error) {
 		&data.Instructions,
 	)
 	if err != nil {
-		return data, errors.New("Не удалось получить данные!")
+		return data, GetDataErr
 	}
 
 	return data, nil
@@ -210,7 +226,7 @@ func DeleteRecipe(id int) error {
 	where id = $1
 	`, id)
 	if err != nil {
-		return errors.New("Не удалось выполнить удаление!")
+		return DeleteDataErr
 	}
 
 	return nil
@@ -234,7 +250,7 @@ func UpdateRecipe(eat_data *models.Eat) error {
 		&eat_data.ID,
 	)
 	if err != nil {
-		return errors.New("Не удалось выполнить обновление!")
+		return UpdateDataErr
 	}
 
 	return nil

@@ -11,6 +11,18 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+var (
+	ConnErr    = errors.New("Ошибка подключения")
+	ConnTmtErr = errors.New("Превышено время ожидания RabbitMQ!")
+
+	DeclareChErr    = errors.New("Не удалось создать канал!")
+	DeclareExErr    = errors.New("Не удалось создать Exchange!")
+	DeclareQueueErr = errors.New("Не удалось создать очередь!")
+	QueueBindErr    = errors.New("Не удалось связать exchange и queue!")
+	MarshallErr     = errors.New("Ошибка перевода структуры в byte[]: ")
+	PublishErr      = errors.New("Не удалось опубликовать сообщение!")
+)
+
 func ConnectionAttempt() error {
 	var conn *amqp.Connection
 	var err error
@@ -25,12 +37,12 @@ func ConnectionAttempt() error {
 			break
 		}
 
-		log.Printf("Ошибка подключения: \"%v\"\n", err.Error())
+		log.Printf("%v: \"%v\"\n", ConnErr.Error(), err.Error())
 		time.Sleep(5 * time.Second)
 	}
 
 	if err != nil {
-		log.Printf("Превышено время ожидания RabbitMQ!\nОшибка: %v\n", err.Error())
+		log.Printf("%v Ошибка: %v\n", ConnTmtErr, err.Error())
 		return err
 	}
 
@@ -42,15 +54,15 @@ func NewMessage(message models.LogMessage) error {
 	// 1.
 	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
 	if err != nil {
-		log.Printf("Не удалось подключиться к RabbitMQ (адрес:\"amqp://guest:guest@rabbitmq:5672/\") ")
-		log.Printf("Error: %v", err.Error())
+		log.Printf("%v (адрес:\"amqp://guest:guest@rabbitmq:5672/\"): %v\n",
+			ConnErr.Error(), err.Error())
 		return err
 	}
 	defer conn.Close()
 
 	ch, err := conn.Channel()
 	if err != nil {
-		log.Printf("Не удалось создать канал! Error: %v\n", err.Error())
+		log.Printf("%v: %v\n", DeclareChErr.Error(), err.Error())
 		return err
 	}
 	defer ch.Close()
@@ -66,7 +78,7 @@ func NewMessage(message models.LogMessage) error {
 		nil,
 	)
 	if err != nil {
-		log.Printf("Не удалось объявить exchange! Error: %v\n", err.Error())
+		log.Printf("%v: %v\n", DeclareExErr.Error(), err.Error())
 		return err
 	}
 
@@ -80,7 +92,7 @@ func NewMessage(message models.LogMessage) error {
 		nil,
 	)
 	if err != nil {
-		log.Printf("Не удалось объявить queue! Error: %v\n", err.Error())
+		log.Printf("%v: %v\n", DeclareQueueErr.Error(), err.Error())
 		return err
 	}
 
@@ -93,7 +105,7 @@ func NewMessage(message models.LogMessage) error {
 		nil,
 	)
 	if err != nil {
-		log.Printf("Не удалось связать exchange и queue! Error: %v\n", err.Error())
+		log.Printf("%v: %v\n", QueueBindErr.Error(), err.Error())
 		return err
 	}
 
@@ -103,7 +115,7 @@ func NewMessage(message models.LogMessage) error {
 	//5.
 	body, err := json.Marshal(message)
 	if err != nil {
-		return errors.New("Ошибка перевода структуры в byte[]: " + err.Error())
+		return MarshallErr
 	}
 
 	err = ch.PublishWithContext(ctx, "logs_exchange",
@@ -117,7 +129,7 @@ func NewMessage(message models.LogMessage) error {
 		},
 	)
 	if err != nil {
-		log.Printf("Не удалось опубликовать сообщение! Error: %v\n", err.Error())
+		log.Printf("%v: %v\n", PublishErr.Error(), err.Error())
 		return err
 	}
 
