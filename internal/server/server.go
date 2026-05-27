@@ -10,7 +10,7 @@ import (
 var (
 	appVersion  string
 	serverAddr  string
-	rootDir     string // ./webtest
+	rootDir     string
 	logfilePath string
 )
 
@@ -19,7 +19,7 @@ func initServer() {
 	appVersion = os.Getenv("APP_VERSION")
 	serverAddr = os.Getenv("SERVER_ADDR")
 
-	workDir, err := os.Getwd() //Получаем путь ./webtest/cmd
+	workDir, err := os.Getwd() //Получаем путь
 	if err != nil {
 		log.Fatal(err)
 	}
