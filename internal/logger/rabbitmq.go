@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	ConnErr    = errors.New("Ошибка подключения")
-	ConnTmtErr = errors.New("Превышено время ожидания RabbitMQ!")
-
+	//Errors
+	ConnErr         = errors.New("Ошибка подключения")
+	ConnTmtErr      = errors.New("Превышено время ожидания RabbitMQ!")
 	DeclareChErr    = errors.New("Не удалось создать канал!")
 	DeclareExErr    = errors.New("Не удалось создать Exchange!")
 	DeclareQueueErr = errors.New("Не удалось создать очередь!")
