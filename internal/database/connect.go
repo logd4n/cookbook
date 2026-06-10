@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -31,6 +32,7 @@ var (
 	DeleteDataErr   = errors.New("Не удалось выполнить удаление!")
 	UpdateDataErr   = errors.New("Не удалось выполнить обновление!")
 	ProcessingErr   = errors.New("Ошибка в обработке результатов!")
+	ctxErr          = errors.New("Пользователь отключился! [DATABASE]")
 )
 
 // Несколько попыток подключения к БД
@@ -170,13 +172,17 @@ func WriteDB(eat_data *models.Eat) error {
 }
 
 // Получение всех рецептов
-func GetAllRecipes() ([]models.RecipeShort, error) {
+func GetAllRecipes(ctx context.Context) ([]models.RecipeShort, error) {
 	var data []models.RecipeShort
 
-	rows, err := dataBase.Query(`
+	rows, err := dataBase.QueryContext(ctx, `
 	select id, name from recipes
 	`)
 	if err != nil {
+		if errors.Is(err, context.Canceled) {
+			return nil, ctxErr
+		}
+
 		return nil, GetDataErr
 	}
 

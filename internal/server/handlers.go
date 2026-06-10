@@ -16,7 +16,6 @@ import (
 
 var (
 	InvMethodErr = errors.New("Метод не поддерживается:")
-	ClientIPErr  = errors.New("Не удалось получить IP-адрес клиента...")
 	JSON_Err     = errors.New("Ожидались данные формата JSON!")
 	MarshallErr  = errors.New("Не удалось вернуть данные в формате JSON!")
 	InvURL_Err   = errors.New("Invalid URL!")
@@ -27,15 +26,17 @@ var (
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, rootDir+"/templates/index.html")
 
+	ctx := r.Context()
+
 	//Получение IP-адреса клиента и вывод подлючения в консоль
-	client, err := getClientIP(r)
+	client, err := getClientIP(ctx, r)
 	if err != nil {
 		colors.SetColor(colors.Text_Red)
-		logger.LogPrint(ClientIPErr.Error(), models.Error)
+		go logger.LogPrint(err.Error(), models.Error)
 		colors.ResetColor()
 	}
 	colors.SetColor(colors.Text_Purple)
-	logger.LogPrint(fmt.Sprintf("Выполнено подключение к \"%s\"! Client ip: [%s]",
+	go logger.LogPrint(fmt.Sprintf("Выполнено подключение к \"%s\"! Client ip: [%s]",
 		serverAddr+"/",
 		client),
 		models.Info)
@@ -61,7 +62,7 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Sprintf("%v %v", InvMethodErr.Error(), r.Method),
 			http.StatusMethodNotAllowed)
 
-		logger.LogPrint(
+		go logger.LogPrint(
 			fmt.Sprintf("%v %v", InvMethodErr.Error(), r.Method),
 			models.Error)
 		return
@@ -71,16 +72,18 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		http.Error(w, JSON_Err.Error(), http.StatusBadRequest)
 
-		logger.LogPrint(JSON_Err.Error(), models.Error)
+		go logger.LogPrint(JSON_Err.Error(), models.Error)
 	}
 
 	//Десериализация тела запроса
-	eat_data, err := Deserialization(r)
+	ctx := r.Context()
+
+	eat_data, err := Deserialization(ctx, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 
 		colors.SetColor(colors.Text_Red)
-		logger.LogPrint(err.Error(), models.Error)
+		go logger.LogPrint(err.Error(), models.Error)
 		colors.ResetColor()
 		return
 	}
@@ -90,22 +93,21 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadGateway)
 
-		logger.NewMessage(models.LogMessage{
-			Level:   models.Error,
-			Message: fmt.Sprintf("Не удалось записать данные в БД: %v", err.Error()),
-		})
+		colors.SetColor(colors.Text_Red)
+		go logger.LogPrint(err.Error(), models.Error)
+		colors.ResetColor()
 		return
 	}
 
-	client, err := getClientIP(r) //Получение IP-адреса клиента
+	client, err := getClientIP(ctx, r) //Получение IP-адреса клиента
 	if err != nil {
 		colors.SetColor(colors.Text_Red)
-		logger.LogPrint(ClientIPErr.Error(), models.Error)
+		go logger.LogPrint(ClientIPErr.Error(), models.Error)
 		colors.ResetColor()
 	}
 
 	colors.SetColor(colors.Text_Purple)
-	logger.LogPrint(
+	go logger.LogPrint(
 		fmt.Sprintf("Клиент [%s] записал данные на сервер!\n\n", client),
 		models.Info,
 	)
@@ -129,15 +131,17 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 
 	http.ServeFile(w, r, rootDir+"/templates/search.html")
 
-	client, err := getClientIP(r) //Получаем ip клиента
+	ctx := r.Context()
+
+	client, err := getClientIP(ctx, r) //Получаем ip клиента
 	if err != nil {
 		colors.SetColor(colors.Text_Red)
-		logger.LogPrint(ClientIPErr.Error(), models.Error)
+		go logger.LogPrint(ClientIPErr.Error(), models.Error)
 		colors.ResetColor()
 	}
 
 	colors.SetColor(colors.Text_Purple)
-	logger.LogPrint(
+	go logger.LogPrint(
 		fmt.Sprintf("Выполнено подключение к \"%s\"! Client ip: [%s]\n\n", serverAddr+"/search", client),
 		models.Info,
 	)
@@ -159,26 +163,29 @@ func getAllRecipesHandler(w http.ResponseWriter, r *http.Request) {
 
 	//Разрешаем только метод GET
 	if r.Method != http.MethodGet {
-		colors.SetColor(colors.Text_Red)
-		logger.LogPrint(
-			fmt.Sprintf("%v %v", InvMethodErr.Error(), r.Method),
-			models.Error,
-		)
 		http.Error(w,
 			fmt.Sprintf("%v %v", InvMethodErr.Error(), r.Method),
 			http.StatusMethodNotAllowed,
+		)
+
+		colors.SetColor(colors.Text_Red)
+		go logger.LogPrint(
+			fmt.Sprintf("%v %v", InvMethodErr.Error(), r.Method),
+			models.Error,
 		)
 		colors.ResetColor()
 		return
 	}
 
+	ctx := r.Context()
+
 	//Отправляем запрос в БД
-	data, err := database.GetAllRecipes()
+	data, err := database.GetAllRecipes(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 
 		colors.SetColor(colors.Text_Red)
-		logger.LogPrint(err.Error(), models.Error)
+		go logger.LogPrint(err.Error(), models.Error)
 		colors.ResetColor()
 		return
 	}
@@ -189,10 +196,7 @@ func getAllRecipesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, MarshallErr.Error(), http.StatusInternalServerError)
 
 		colors.SetColor(colors.Text_Red)
-		logger.LogPrint(
-			MarshallErr.Error(),
-			models.Error,
-		)
+		go logger.LogPrint(MarshallErr.Error(), models.Error)
 		colors.ResetColor()
 	}
 }
@@ -218,7 +222,7 @@ func getOneRecipeHandler(w http.ResponseWriter, r *http.Request) {
 		)
 
 		colors.SetColor(colors.Text_Red)
-		logger.LogPrint(
+		go logger.LogPrint(
 			fmt.Sprintf("%v %v", InvMethodErr, r.Method),
 			models.Error,
 		)
@@ -230,10 +234,7 @@ func getOneRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	urlParts := strings.Split(r.URL.Path, "/") // [api recipes X] X --> id of recipe
 	if len(urlParts) < 3 {
 		http.Error(w, InvURL_Err.Error(), http.StatusBadRequest)
-		logger.LogPrint(
-			InvURL_Err.Error(),
-			models.Error,
-		)
+		go logger.LogPrint(InvURL_Err.Error(), models.Error)
 		return
 	}
 
@@ -241,10 +242,7 @@ func getOneRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	recipeID, err := strconv.Atoi(urlParts[3])
 	if err != nil {
 		http.Error(w, GetID_Err.Error(), http.StatusBadRequest)
-		logger.LogPrint(
-			GetID_Err.Error(),
-			models.Error,
-		)
+		go logger.LogPrint(GetID_Err.Error(), models.Error)
 		return
 	}
 
@@ -252,10 +250,7 @@ func getOneRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	recipe, err := database.GetOneRecipe(recipeID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadGateway)
-		logger.LogPrint(
-			err.Error(),
-			models.Error,
-		)
+		go logger.LogPrint(err.Error(), models.Error)
 		return
 	}
 
@@ -268,10 +263,7 @@ func getOneRecipeHandler(w http.ResponseWriter, r *http.Request) {
 			http.StatusInternalServerError,
 		)
 
-		logger.LogPrint(
-			MarshallErr.Error(),
-			models.Error,
-		)
+		go logger.LogPrint(MarshallErr.Error(), models.Error)
 	}
 }
 
@@ -295,7 +287,7 @@ func deleteRecipeHandler(w http.ResponseWriter, r *http.Request) {
 			http.StatusMethodNotAllowed,
 		)
 
-		logger.LogPrint(
+		go logger.LogPrint(
 			fmt.Sprintf("%v %v", InvMethodErr, r.Method),
 			models.Error,
 		)
@@ -307,10 +299,7 @@ func deleteRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	if len(urlParts) < 3 {
 		http.Error(w, InvURL_Err.Error(), http.StatusBadRequest)
 
-		logger.LogPrint(
-			InvURL_Err.Error(),
-			models.Error,
-		)
+		go logger.LogPrint(InvURL_Err.Error(), models.Error)
 		return
 	}
 
@@ -319,10 +308,7 @@ func deleteRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, GetID_Err.Error(), http.StatusBadRequest)
 
-		logger.LogPrint(
-			GetID_Err.Error(),
-			models.Error,
-		)
+		go logger.LogPrint(GetID_Err.Error(), models.Error)
 		return
 	}
 
@@ -331,22 +317,21 @@ func deleteRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadGateway)
 
-		logger.LogPrint(
-			err.Error(),
-			models.Error,
-		)
+		go logger.LogPrint(err.Error(), models.Error)
 		return
 	}
 
-	client, err := getClientIP(r) //Получение ip клиента
+	ctx := r.Context()
+
+	client, err := getClientIP(ctx, r) //Получение ip клиента
 	if err != nil {
 		colors.SetColor(colors.Text_Red)
-		logger.LogPrint(ClientIPErr.Error(), models.Error)
+		go logger.LogPrint(ClientIPErr.Error(), models.Error)
 		colors.ResetColor()
 	}
 
 	colors.SetColor(colors.Text_Purple)
-	logger.LogPrint(
+	go logger.LogPrint(
 		fmt.Sprintf("Клиент [%s] удалил данные по id [%d] на сервере!", client, recipeID),
 		models.Info,
 	)
@@ -376,22 +361,21 @@ func updateRecipeHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Sprintf("%v %v", InvMethodErr, r.Method),
 			http.StatusMethodNotAllowed)
 
-		logger.LogPrint(
+		go logger.LogPrint(
 			fmt.Sprintf("%v %v", InvMethodErr, r.Method),
 			models.Error,
 		)
 		return
 	}
 
+	ctx := r.Context()
+
 	//Десериализуем тело запроса
-	data, err := Deserialization(r)
+	data, err := Deserialization(ctx, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 
-		logger.LogPrint(
-			err.Error(),
-			models.Error,
-		)
+		go logger.LogPrint(err.Error(), models.Error)
 		return
 	}
 
@@ -400,22 +384,19 @@ func updateRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadGateway)
 
-		logger.LogPrint(
-			err.Error(),
-			models.Error,
-		)
+		go logger.LogPrint(err.Error(), models.Error)
 		return
 	}
 
-	client, err := getClientIP(r) //Получаем ip клиента
+	client, err := getClientIP(ctx, r) //Получаем ip клиента
 	if err != nil {
 		colors.SetColor(colors.Text_Red)
-		logger.LogPrint(ClientIPErr.Error(), models.Error)
+		go logger.LogPrint(ClientIPErr.Error(), models.Error)
 		colors.ResetColor()
 	}
 
 	colors.SetColor(colors.Text_Purple)
-	logger.LogPrint(
+	go logger.LogPrint(
 		fmt.Sprintf("Клиент [%s] обновил данные по id [%d] на сервере!", client, data.ID),
 		models.Info,
 	)
