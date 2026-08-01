@@ -8,18 +8,20 @@ import (
 	"strconv"
 	"strings"
 	"webtest/internal/database"
+	filemanager "webtest/internal/fileManager"
 	"webtest/internal/logger"
 	"webtest/internal/models"
-	. "webtest/internal/writeData"
 	"webtest/pkg/colors"
 )
 
 var (
-	InvMethodErr = errors.New("Метод не поддерживается:")
-	JSON_Err     = errors.New("Ожидались данные формата JSON!")
-	MarshallErr  = errors.New("Не удалось вернуть данные в формате JSON!")
-	InvURL_Err   = errors.New("Invalid URL!")
-	GetID_Err    = errors.New("Не удалось получить ID!")
+	ctxErr        = errors.New("Отмена запроса со стороны клиента!")
+	InvMethodErr  = errors.New("Метод не поддерживается: ")
+	JSON_Err      = errors.New("Ожидались данные формата JSON!")
+	MarshallErr   = errors.New("Не удалось вернуть данные в формате JSON!")
+	InvURL_Err    = errors.New("Invalid URL!")
+	GetID_Err     = errors.New("Не удалось получить ID!")
+	EmptyQueryErr = errors.New("Пустой параметр URL!")
 )
 
 // Обработчик для localhost:8080/
@@ -405,4 +407,82 @@ func updateRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	//Возвращаем статус 200 ОК и сообщение
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Редактирование выполнено успешно!"))
+}
+
+func downloadRecipe(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, InvMethodErr.Error()+r.Method, http.StatusMethodNotAllowed)
+		go logger.LogPrint(InvMethodErr.Error()+r.Method, models.Error)
+		return
+	}
+
+	ctx := r.Context()
+
+	recipeIdStr := r.URL.Query().Get("id")
+	recipeID, err := strconv.Atoi(recipeIdStr)
+	if err != nil {
+		http.Error(w, "Неверный параметр URL!", http.StatusBadRequest)
+		go logger.LogPrint("Неверный параметр URL!", models.Error)
+		return
+	}
+
+	data, err := database.GetOneRecipe(recipeID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadGateway)
+		go logger.LogPrint(err.Error(), models.Error)
+		return
+	}
+
+	/*
+		if recipeIdStr == "" {
+			http.Error(w, EmptyQueryErr.Error(), http.StatusBadRequest)
+			go logger.LogPrint(EmptyQueryErr.Error(), models.Error)
+			return
+		}
+
+
+			data, err := Deserialization(ctx, r)
+			if err != nil {
+				if errors.Is(err, ctxErr) {
+					http.Error(w, err.Error(), http.StatusRequestTimeout)
+				} else {
+					http.Error(w, err.Error(), http.StatusBadGateway)
+				}
+
+				go logger.LogPrint(err.Error(), models.Error)
+				return
+			}
+	*/
+
+	fm_config := filemanager.ManagerConfig{
+		RootDir: rootDir,
+		Data:    &data,
+	}
+
+	fileName, filePath, err := filemanager.CreateFile(ctx, &fm_config)
+	if err != nil {
+		if errors.Is(err, ctxErr) {
+			http.Error(w, err.Error(), http.StatusRequestTimeout)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		go logger.LogPrint(err.Error(), models.Error)
+		return
+	}
+	go logger.LogPrint(
+		fmt.Sprintf("Файл \"%s\" создан и готов к загрузке", fileName),
+		models.Info,
+	)
+
+	w.Header().Set(
+		"Content-Disposition",
+		fmt.Sprintf("attachment; filename=\"%s\"", fileName),
+	)
+	w.Header().Set(
+		"Content-Type",
+		"text/plain; charset=utf-8",
+	)
+
+	http.ServeFile(w, r, filePath)
 }
