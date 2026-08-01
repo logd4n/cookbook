@@ -63,6 +63,7 @@ func StartServer(dbVersion *string) {
 	http.HandleFunc("/api/recipes/", getOneRecipeHandler)
 	http.HandleFunc("/api/deleteRecipe/", deleteRecipeHandler)
 	http.HandleFunc("/api/updateRecipe/", updateRecipeHandler)
+	http.HandleFunc("/api/download", downloadRecipe)
 
 	http.ListenAndServe("0.0.0.0:8080", nil)
 }

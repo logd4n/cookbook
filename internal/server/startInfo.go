@@ -17,11 +17,6 @@ func GetStartInfo(dbVersion *string) {
 	fmt.Printf("Time:\t%s\n", time.Now().Format("02 January 2006, 15:04:05, MST"))
 	//Вывод корневого каталога
 	fmt.Printf("Root direction:\t%s\n", rootDir)
-	//Вывод пути к файлу с логами
-	fmt.Printf("Path to logs:\t%s", logfilePath)
-	colors.SetColor(colors.Text_Red)
-	fmt.Printf("\tDOESN'T WORK YET :(\n") //ПОКА ЧТО НЕ РАБОТАЕТ
-	colors.SetColor(colors.Text_Yellow)
 	//Вывод версии БД
 	fmt.Printf("Database version:\t%s\n", *dbVersion)
 	colors.ResetColor() //Сброс желтого цвета

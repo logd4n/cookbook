@@ -8,7 +8,6 @@ import (
 )
 
 var (
-	ctxErr      = errors.New("Пользователь отключился! getClientIP остановлен!")
 	ClientIPErr = errors.New("Не удалось получить IP-адрес клиента...")
 )
 
