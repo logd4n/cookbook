@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const editBtn = document.getElementById('edit-btn');
     const saveBtn = document.getElementById('save-btn');
     const cancelBtn = document.getElementById('cancel-btn');
+    const downloadBtn = document.getElementById('download-btn')
     const host = window.location.hostname
     
     // Переменные для управления состоянием
@@ -65,6 +66,43 @@ document.addEventListener('DOMContentLoaded', function() {
         disableEditMode();
         restoreOriginalData();
     });
+
+    // Обработчик кнопки скачивания (для ссылки)
+    downloadBtn.addEventListener('click', function(e) {
+        // Предотвращаем переход по ссылке
+        e.preventDefault();
+        
+        if (currentRecipeId) {
+            downloadRecipe(currentRecipeId);
+        } else {
+            alert('Сначала выберите рецепт для скачивания');
+        }
+    });
+
+        // Функция для скачивания рецепта
+    function downloadRecipe(recipeId) {
+        try {
+            const downloadUrl = `http://${host}:8080/api/download?id=${recipeId}`;
+            console.log(`📥 Скачивание рецепта с ID: ${recipeId}`);
+            console.log(`🔗 URL для скачивания: ${downloadUrl}`);
+            
+            // Открываем ссылку для скачивания в новом окне или текущем
+            window.open(downloadUrl, '_blank');
+            
+            // Альтернативный способ через создание временной ссылки
+            // const link = document.createElement('a');
+            // link.href = downloadUrl;
+            // link.target = '_blank';
+            // link.download = `recipe_${recipeId}.txt`; // Можно указать имя файла
+            // document.body.appendChild(link);
+            // link.click();
+            // document.body.removeChild(link);
+            
+        } catch (error) {
+            console.error('❌ Ошибка скачивания:', error);
+            alert('Ошибка при скачивании рецепта: ' + error.message);
+        }
+    }
 
     // Функция для удаления рецепта
     async function deleteRecipe(recipeId) {
