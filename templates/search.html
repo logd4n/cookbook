@@ -19,14 +19,14 @@
                 <script>
                 // window.location.hostname сам определит IP или домен, по которому открыт сайт
                 const host = window.location.hostname; 
-                document.getElementById('mainPage').href = `http://${host}:8080/`;
+                document.getElementById('mainPage').href = `http://${host}/`;
                 </script>
             </a>
             <a href="#" id="searchPage" class="nav-btn active">
                 <i class="fas fa-search"></i>
                 Найти рецепт
                 <script>
-                document.getElementById('searchPage').href = `http://${host}:8080/search`;
+                document.getElementById('searchPage').href = `http://${host}/search`;
                 </script>
             </a>
         </div>

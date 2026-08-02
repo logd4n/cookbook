@@ -21,7 +21,7 @@ document.getElementById('recipe-form').addEventListener('submit', async function
     
     try {
         // Отправляем POST-запрос
-        const response = await fetch(`http://${host}:8080/add`, {
+        const response = await fetch(`/add`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
