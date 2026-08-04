@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Функция для скачивания рецепта
     function downloadRecipe(recipeId) {
         try {
-            const downloadUrl = `http://${host}:8080/api/download?id=${recipeId}`;
+            const downloadUrl = `/api/download?id=${recipeId}`;
             console.log(`📥 Скачивание рецепта с ID: ${recipeId}`);
             console.log(`🔗 URL для скачивания: ${downloadUrl}`);
             
