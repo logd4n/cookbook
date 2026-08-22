@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd "$(dirname "$(readlink -f "$0")")"
+
 #Находим IP
 IP=$(ip route get 1.1.1.1 | awk '{print $7}')
 
