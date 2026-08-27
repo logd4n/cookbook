@@ -3,8 +3,8 @@ package server
 import (
 	"context"
 	"errors"
-	"net"
 	"net/http"
+	"strings"
 )
 
 var (
@@ -17,10 +17,17 @@ func getClientIP(ctx context.Context, r *http.Request) (string, error) {
 	case <-ctx.Done():
 		return "", ctxErr
 	default:
-		ip, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err != nil {
-			ip = "unknown client"
+		if forwarded := r.Header.Get("X-Forwarded-For"); forwarded != "" {
+			ips := strings.Split(forwarded, ",")
+			if len(ips) > 0 {
+				return strings.TrimSpace(ips[0]), nil
+			}
 		}
-		return ip, err
+
+		if realIP := r.Header.Get("X-Real-IP"); realIP != "" {
+			return realIP, nil
+		}
+
+		return "unkwown IP", ClientIPErr
 	}
 }
