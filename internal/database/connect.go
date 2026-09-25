@@ -176,7 +176,9 @@ func GetAllRecipes(ctx context.Context) ([]models.RecipeShort, error) {
 	var data []models.RecipeShort
 
 	rows, err := dataBase.QueryContext(ctx, `
-	select id, name from recipes
+	select id, name
+	from recipes
+	order by name asc
 	`)
 	if err != nil {
 		if errors.Is(err, context.Canceled) {
