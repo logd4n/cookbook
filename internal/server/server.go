@@ -12,12 +12,16 @@ var (
 	serverAddr  string
 	rootDir     string
 	logfilePath string
+	username    string
+	password    string
 )
 
 // Функция инициализации сервера
 func initServer() {
 	appVersion = os.Getenv("APP_VERSION")
 	serverAddr = os.Getenv("SERVER_ADDR")
+	username = os.Getenv("ADMIN_USERNAME")
+	password = os.Getenv("ADMIN_PASSWORD")
 
 	workDir, err := os.Getwd() //Получаем путь
 	if err != nil {

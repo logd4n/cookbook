@@ -52,6 +52,11 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
+	err := requierAuth(w, r)
+	if err != nil {
+		return
+	}
+
 	//Проверка метода OPTIONS
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
@@ -216,6 +221,11 @@ func getOneRecipeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err := requierAuth(w, r)
+	if err != nil {
+		return
+	}
+
 	//Разрешаем только метод GET
 	if r.Method != http.MethodGet {
 		http.Error(w,
@@ -279,6 +289,11 @@ func deleteRecipeHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	err := requierAuth(w, r)
+	if err != nil {
 		return
 	}
 
@@ -432,27 +447,6 @@ func downloadRecipe(w http.ResponseWriter, r *http.Request) {
 		go logger.LogPrint(err.Error(), models.Error)
 		return
 	}
-
-	/*
-		if recipeIdStr == "" {
-			http.Error(w, EmptyQueryErr.Error(), http.StatusBadRequest)
-			go logger.LogPrint(EmptyQueryErr.Error(), models.Error)
-			return
-		}
-
-
-			data, err := Deserialization(ctx, r)
-			if err != nil {
-				if errors.Is(err, ctxErr) {
-					http.Error(w, err.Error(), http.StatusRequestTimeout)
-				} else {
-					http.Error(w, err.Error(), http.StatusBadGateway)
-				}
-
-				go logger.LogPrint(err.Error(), models.Error)
-				return
-			}
-	*/
 
 	fm_config := filemanager.ManagerConfig{
 		RootDir: rootDir,
