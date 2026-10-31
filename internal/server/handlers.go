@@ -221,11 +221,6 @@ func getOneRecipeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := requierAuth(w, r)
-	if err != nil {
-		return
-	}
-
 	//Разрешаем только метод GET
 	if r.Method != http.MethodGet {
 		http.Error(w,
